@@ -47,8 +47,8 @@ class MessageHandler {
             // If message is ONLY proxies (no meaningful content), don't forward
             const cleanedText = (0, proxyProcessor_1.cleanSourceText)(text);
             if (!cleanedText || cleanedText.length < 10) {
-                console.log('Message contains only proxies or minimal content, skipping forward');
-                return;
+                console.log('Message contains only proxies or minimal content, saving to pool and moving forward.');
+                // return; <-- این خط را با گذاشتن دو تا اسلش کامنت کن تا فرآیند متوقف نشود
             }
             // Process media posts (photo/video with caption)
             if ('photo' in message || 'video' in message) {
