@@ -1,0 +1,30 @@
+{
+  "name": "telegram-content-aggregator",
+  "version": "1.0.0",
+  "description": "Professional Telegram Scraping & Content Aggregator Bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "worker": "ts-node src/worker.ts",
+    "dashboard": "ts-node src/dashboard/server.ts",
+    "migrate": "ts-node src/database/migrate.ts"
+  },
+  "keywords": ["telegram", "bot", "scraper", "aggregator"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "telegraf": "^4.15.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/express": "^4.17.21",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.1"
+  }
+}

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Content Aggregator - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-box h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .slider-value {
+            min-width: 30px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .channel-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .channel-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Telegram Content Aggregator</h1>
+            <p>Professional Dashboard & Configuration Panel</p>
+        </div>
+
+        <div class="card">
+            <h2>📊 System Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>Total Proxies</h3>
+                    <div class="value" id="stat-total-proxies">-</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Available Proxies</h3>
+                    <div class="value" id="stat-available-proxies">-</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Used Proxies</h3>
+                    <div class="value" id="stat-used-proxies">-</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Queued Posts</h3>
+                    <div class="value" id="stat-queued-posts">-</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h2>⚙️ Configuration</h2>
+            
+            <div id="alert" class="alert"></div>
+            
+            <form id="config-form">
+                <div class="form-group">
+                    <label for="target_channel_id">Target Channel ID</label>
+                    <input type="text" id="target_channel_id" placeholder="@your_target_channel" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="source_channels">Source Channels (comma-separated)</label>
+                    <input type="text" id="source_channels" placeholder="@source1, @source2, @source3" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="proxy_count">Proxy Count per Post (1-10)</label>
+                    <div class="slider-container">
+                        <input type="range" id="proxy_count" class="slider" min="1" max="10" value="3">
+                        <span class="slider-value" id="proxy_count_value">3</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hyperlink_text">Hyperlink Display Text</label>
+                    <input type="text" id="hyperlink_text" placeholder="CONNECT" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signature_text">Signature Text</label>
+                    <textarea id="signature_text" placeholder="🎬 Join our channel for more content!"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signature_link">Signature Link</label>
+                    <input type="url" id="signature_link" placeholder="https://t.me/flash_moviez" required>
+                </div>
+                
+                <button type="submit" class="btn">💾 Save Configuration</button>
+                <button type="button" class="btn btn-secondary" onclick="loadConfig()">🔄 Reload</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';
+        let authToken = localStorage.getItem('admin_token') || '';
+
+        // Prompt for password if not set
+        if (!authToken) {
+            authToken = prompt('Enter Admin Password:');
+            if (authToken) {
+                localStorage.setItem('admin_token', authToken);
+            }
+        }
+
+
+        const headers = {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+        };
+
+        // Slider interaction
+        const proxySlider = document.getElementById('proxy_count');
+        const proxyValue = document.getElementById('proxy_count_value');
+        proxySlider.addEventListener('input', function() {
+            proxyValue.textContent = this.value;
+        });
+
+        // Show alert message
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert ${type} show`;
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Load configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch(`${API_URL}/api/config`, { headers });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('admin_token');
+                        location.reload();
+                        return;
+                    }
+                    throw new Error('Failed to load configuration');
+                }
+                
+                const config = await response.json();
+                
+                document.getElementById('target_channel_id').value = config.target_channel_id;
+                document.getElementById('source_channels').value = config.source_channels.join(', ');
+                document.getElementById('proxy_count').value = config.proxy_count;
+                document.getElementById('proxy_count_value').textContent = config.proxy_count;
+                document.getElementById('hyperlink_text').value = config.hyperlink_text;
+                document.getElementById('signature_text').value = config.signature_text;
+                document.getElementById('signature_link').value = config.signature_link;
+                
+                showAlert('Configuration loaded successfully', 'success');
+            } catch (error) {
+                showAlert('Failed to load configuration: ' + error.message, 'error');
+            }
+        }
+
+        // Save configuration
+        document.getElementById('config-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const sourceChannels = document.getElementById('source_channels').value
+                .split(',')
+                .map(ch => ch.trim())
+                .filter(ch => ch.length > 0);
+            
+            const config = {
+                target_channel_id: document.getElementById('target_channel_id').value,
+                source_channels: sourceChannels,
+                proxy_count: parseInt(document.getElementById('proxy_count').value),
+                hyperlink_text: document.getElementById('hyperlink_text').value,
+                signature_text: document.getElementById('signature_text').value,
+                signature_link: document.getElementById('signature_link').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/config`, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(config)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save configuration');
+                }
+                
+                showAlert('Configuration saved successfully!', 'success');
+                loadStats();
+            } catch (error) {
+                showAlert('Failed to save configuration: ' + error.message, 'error');
+            }
+        });
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/stats`, { headers });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load statistics');
+                }
+                
+                const stats = await response.json();
+                
+                document.getElementById('stat-total-proxies').textContent = stats.proxies.total;
+                document.getElementById('stat-available-proxies').textContent = stats.proxies.available;
+                document.getElementById('stat-used-proxies').textContent = stats.proxies.used;
+                document.getElementById('stat-queued-posts').textContent = stats.queue.total;
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+            }
+        }
+
+        // Initial load
+        loadConfig();
+        loadStats();
+
+        // Refresh stats every 10 seconds
+        setInterval(loadStats, 10000);
+    </script>
+</body>
+</html>
